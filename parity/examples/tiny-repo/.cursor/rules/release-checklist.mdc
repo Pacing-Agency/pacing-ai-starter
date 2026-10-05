@@ -1,0 +1,8 @@
+---
+description: Steps to follow before tagging a release
+alwaysApply: false
+---
+
+# Release checklist
+
+Run the tests, update the changelog, tag from main.

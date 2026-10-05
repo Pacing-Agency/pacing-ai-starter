@@ -1,0 +1,14 @@
+---
+description: Never use em dashes in any output or edits
+alwaysApply: true
+---
+
+# No em dashes
+
+This is an example of a house-style rule: a small, concrete, checkable preference that the agent applies everywhere. Swap it for your own (for example "no exclamation marks", "sentence case headings", "no emoji").
+
+Never use Unicode U+2014. Do not type it, paste it, or substitute "fancy" punctuation. This applies to chat, markdown, code comments, shipped copy, commits and rules.
+
+Use commas, brackets, a full stop or a colon. A hyphen `-` is fine as a simple separator. Use an en dash only for a true numeric range.
+
+When editing a line that already has an em dash, rewrite that line to remove it.

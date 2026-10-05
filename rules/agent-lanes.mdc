@@ -1,0 +1,31 @@
+---
+description: Who owns what between the AI tools used on this repo. Enforce it with a hook where you can.
+alwaysApply: true
+---
+
+# Agent lanes
+
+{{OWNER_NAME}} runs more than one AI tool on this repo (for example Cursor Agent, Claude Code, a desktop assistant, scheduled bots). They do not share chat memory. Give each kind of work one owner, and hand off through a file: `{{HANDOFF_FILE}}`.
+
+Edit the table to match your set-up. The shape is what matters: risky side effects get one owner and a human trigger.
+
+| Lane | Owner | Others |
+|------|-------|--------|
+| Outbound side effects: sending email or chat, calendar invites, sharing documents, publishing a site or ad account change | **{{SIDE_EFFECT_OWNER}}**, only when the user asks in the current message | Everyone else is blocked; write the request into the handoff file |
+| Scheduled or housekeeping agents in `.cursor/agents/` | **{{HOUSEKEEPING_OWNER}}** | Others do not launch them unless the user names the agent in the current message |
+| Repo coding, refactors, plans, tests, generated config | **{{CODING_OWNER}}** | Others may make small edits; never both editing one set of files in a turn |
+| Read-only lookups through MCP servers | Any | No lane. Do not repeat a pass another agent already filed |
+| Overnight bots | **{{BOT_OWNER}}** | Read their latest output; never re-run a bot pass |
+| Pull request review | {{REVIEW_OWNER}}, once per PR | No second review of the same PR |
+
+## Enforcement
+
+Rules are advice. Back the important lanes with a hook:
+
+- A `PreToolUse` hook that checks the tool name (or subagent name) against a deny list and returns a deny decision. Use deny, not ask: some modes ignore ask.
+- A one-use, time-limited pass the user can grant when they do want the blocked action, for example a file with an expiry that the hook checks. Never create a pass on your own initiative.
+- Hooks may not fire inside subagents, so block the subagent at launch.
+
+## Handoff
+
+When work moves lanes, add an entry to `{{HANDOFF_FILE}}` (UTC time, agent, goal, paths, links, next owner, blockers) and stop. Say "hand to {{OTHER_AGENT}}" rather than working around a block.

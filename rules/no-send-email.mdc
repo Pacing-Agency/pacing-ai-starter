@@ -1,0 +1,30 @@
+---
+description: Never send or draft emails unless the user explicitly asks in the current message.
+alwaysApply: true
+---
+
+# No outbound email without explicit instruction
+
+**Never send email** through {{EMAIL_TOOLS}} (for example a Gmail MCP's `send_message`, `create_draft`, `reply`, `forward`) or any other channel unless {{OWNER_NAME}} **explicitly** asks in the **current user message** (for example "send this to Sam", "draft and send").
+
+## Do not
+
+- Call a send, draft, reply or forward tool to a third party without a clear request in that turn.
+- Say you will email someone, or offer to "send a follow-up", unless the user asked for outbound mail in that message.
+- Imply an email was or will be sent by the agent when you only read, drafted text in chat, or prepared files.
+
+## Allowed without a send request
+
+- **Search and read** mail for context.
+- **Write email copy in chat** for the user to paste or send.
+- **Prepare attachments or documents** and give the user the link. They send when ready.
+
+## When the user does ask to send
+
+- Confirm recipient, subject and body before sending.
+- Prefer a draft if they said "draft" only. Send only when they said send.
+- Use the sign-off {{SIGN_OFF}}. Do not invent a signature block if your mail client or a hook adds one.
+
+## Wording
+
+Say "you can send..." or "copy for your reply". Do not say "I'll email them" or "your email went out" unless the user sent it and you are reporting facts from a read-only check.

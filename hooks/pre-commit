@@ -1,0 +1,39 @@
+#!/bin/sh
+# Secret guard. Blocks a commit when a staged line looks like a credential.
+# Install: sh hooks/install.sh   (sets core.hooksPath to .githooks)
+# False positive? Fix the file, or `git commit --no-verify` once and tell your team.
+# Values are never printed, only file names and the kind of match.
+
+root=$(git rev-parse --show-toplevel) || exit 0
+cd "$root" || exit 0
+
+# Credential-shaped patterns (extended regex). Add your own at the end.
+PATTERNS='sk-[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|AKIA[0-9A-Z]{16}|xox[abprs]-[A-Za-z0-9-]{10,}|AIza[0-9A-Za-z_-]{35}|-----BEGIN [A-Z ]*PRIVATE KEY-----|"refresh_token"[[:space:]]*:[[:space:]]*"[^"]{10,}|(api[_-]?key|secret|token|password)[A-Za-z0-9_]*[[:space:]]*[:=][[:space:]]*["'"'"'][A-Za-z0-9_./+=-]{20,}["'"'"']'
+
+# Files that should never be committed at all.
+BLOCKED_NAMES='(^|/)\.env($|\.)|\.keys\.json$|(^|/)credentials\.json$|(^|/)client_secret.*\.json$|\.pem$|\.p12$'
+
+fail=0
+
+names=$(git diff --cached --name-only --diff-filter=AM | grep -E "$BLOCKED_NAMES" | grep -Ev '\.env\.(example|sample|template)$')
+if [ -n "$names" ]; then
+  echo "secret guard: these files should not be committed:" >&2
+  echo "$names" | sed 's/^/  /' >&2
+  fail=1
+fi
+
+# Only look at added lines.
+hits=$(git diff --cached -U0 --diff-filter=AM --no-color |
+  awk '/^\+\+\+ b\//{f=substr($0,7)} /^\+[^+]/{print f "\t" substr($0,2)}' |
+  grep -E "$(printf '\t').*($PATTERNS)" | cut -f1 | sort | uniq -c)
+if [ -n "$hits" ]; then
+  echo "secret guard: credential-shaped text in staged files (values not shown):" >&2
+  echo "$hits" | sed 's/^/  /' >&2
+  fail=1
+fi
+
+if [ "$fail" -ne 0 ]; then
+  echo "Keep secrets in .env (ignored) or your secret manager." >&2
+  exit 1
+fi
+exit 0

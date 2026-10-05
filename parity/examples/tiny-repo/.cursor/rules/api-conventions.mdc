@@ -1,0 +1,9 @@
+---
+description: Conventions for HTTP handlers
+globs: "src/api/**/*.ts"
+alwaysApply: false
+---
+
+# API conventions
+
+Validate input at the edge. Return JSON errors with a `code` field.

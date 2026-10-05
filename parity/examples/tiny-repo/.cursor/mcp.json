@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "docs": {
+      "url": "https://mcp.example.com/mcp",
+      "headers": { "Authorization": "Bearer ${env:DOCS_TOKEN}" }
+    },
+    "search": {
+      "command": "npx",
+      "args": ["-y", "example-search-mcp"],
+      "env": { "SEARCH_API_KEY": "${env:SEARCH_API_KEY}" },
+      "envFile": "${workspaceFolder}/.env"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+---
+description: Project baseline conventions for this repo
+alwaysApply: true
+---
+
+# {{ORG_NAME}} baseline
+
+This repo belongs to {{ORG_NAME}}. Follow these conventions.
+
+## Language and tone
+- {{LANGUAGE_VARIANT}} (for example British English: organise, colour, optimise).
+- {{TONE}} (for example: direct and concise).
+- Follow the house-style rule for punctuation.
+
+## Secrets
+- Never hardcode secrets. Read them from `.env` or the environment.
+- Never commit `.env`, `*.keys.json` or credential files.
+- Public front-end keys that are already public (for example a search-only key) may be inlined.
+
+## Naming
+- {{NAMING_CONVENTION}} (for example: work for a client is prefixed with its short code, `{{CLIENT_CODE}}:`).
+
+## Repo hygiene
+- Do not commit {{IGNORED_DIRS}} (for example `node_modules`, `dist`, `.next`, `venv`).
+- Keep `AGENTS.md` current when setup, deploy or structure changes.
+
+## Docs
+- When behaviour, setup or an API changes, update {{DOCS_LOCATION}}.

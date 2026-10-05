@@ -1,0 +1,4 @@
+{
+  "lane_note": "Owned by Cursor: do not launch from Claude Code unless the user names this agent.",
+  "claude_flag_hooks": ["hello.cjs"]
+}

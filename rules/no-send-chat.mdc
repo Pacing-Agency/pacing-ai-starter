@@ -1,0 +1,29 @@
+---
+description: Never send or change team chat messages unless the user explicitly asks in the current message.
+alwaysApply: true
+---
+
+# No outbound chat without explicit instruction
+
+**Never send, edit or delete messages** in {{CHAT_TOOL}} (Slack, Google Chat, Teams, or similar, through an MCP or CLI) unless {{OWNER_NAME}} **explicitly** asks in the **current user message** (for example "post that in the launch channel", "reply in the thread").
+
+## Do not
+
+- Call any send, reply, update, delete, upload, create-channel, delete-channel or membership tool without a clear request in that turn.
+- Run any script that deletes or prunes rooms or channels unless the user asked for that in the turn.
+- Say you will message someone, or offer to "drop this in the channel", unless the user asked for outbound chat in that message.
+- Imply a message was or will be sent when you only read channels or drafted copy.
+
+## Allowed without a send request
+
+- **List and read** channels, messages, members and attachments.
+- **Write chat copy in your editor** for the user to paste.
+
+## When the user does ask to send
+
+- Confirm the channel (name or ID) and the exact body before sending.
+- Note which identity the post appears under (the user, or a bot).
+
+## Wording
+
+Say "you can send..." or "copy for chat". Do not say "I'll post it" or "that went to the channel" unless the user sent it and you are reporting facts from a read-only check.
