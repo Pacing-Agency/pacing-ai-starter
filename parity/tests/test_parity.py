@@ -57,6 +57,26 @@ class ParityTests(unittest.TestCase):
         cmd = settings["hooks"]["SessionStart"][0]["hooks"][0]["command"]
         self.assertTrue(cmd.endswith("--claude"))
 
+    def test_prompt_hook_ported_and_unknown_event_noted(self):
+        hooks = self.repo / ".cursor/hooks.json"
+        data = json.loads(hooks.read_text())
+        data["hooks"]["beforeSubmitPrompt"] = [{"command": "node a.cjs"}]
+        data["hooks"]["stop"] = [{"command": "node b.cjs"}]
+        hooks.write_text(json.dumps(data))
+        out = run(self.repo)
+        settings = json.loads((self.repo / ".claude/settings.json").read_text())
+        self.assertIn("UserPromptSubmit", settings["hooks"])
+        self.assertNotIn("stop", json.dumps(settings))
+        self.assertIn("'stop'", out.stdout)
+
+    def test_agent_frontmatter_has_no_blank_line(self):
+        (self.repo / ".cursor-claude-parity.json").write_text("{}")  # no lane note
+        agent = self.repo / ".cursor/agents/plain.md"
+        agent.write_text("---\nname: plain\ndescription: Does a thing\nmodel: opus\n---\n\nBody\n")
+        run(self.repo)
+        text = (self.repo / ".claude/agents/plain.md").read_text()
+        self.assertNotIn("name: plain\n\n", text)
+
     def test_check_clean_then_drift(self):
         run(self.repo)
         self.assertEqual(run(self.repo, "--check").returncode, 0)

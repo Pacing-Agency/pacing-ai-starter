@@ -37,6 +37,7 @@ CURSOR_HOOK_TO_CLAUDE = {
     "sessionend": "SessionEnd",
     "pretooluse": "PreToolUse",
     "posttooluse": "PostToolUse",
+    "beforesubmitprompt": "UserPromptSubmit",
 }
 AGENT_SKIP_NAMES = frozenset({"readme"})
 
@@ -262,7 +263,11 @@ def extract_frontmatter_lines(text: str) -> list[str]:
     if not text.startswith("---"):
         return []
     parts = text.split("---", 2)
-    return parts[1].splitlines() if len(parts) >= 3 else []
+    if len(parts) < 3:
+        return []
+    lines = parts[1].splitlines()
+    # the text after the opening --- starts with a newline, which gives a leading ""
+    return lines[1:] if lines and not lines[0].strip() else lines
 
 
 def sanitize_prose(text: str) -> str:
@@ -536,7 +541,7 @@ def claude_hook_matcher(event: str, entry: dict[str, Any], cfg: Config) -> str |
 
 
 def build_hooks_settings(
-    root: Path, cfg: Config, existing: dict[str, Any] | None
+    root: Path, cfg: Config, existing: dict[str, Any] | None, result: SyncResult
 ) -> str | None:
     src = root / ".cursor" / "hooks.json"
     if not src.is_file():
@@ -546,6 +551,9 @@ def build_hooks_settings(
     for event, entries in hooks_in.items():
         claude_event = CURSOR_HOOK_TO_CLAUDE.get(event.lower())
         if not claude_event:
+            note = f"Cursor hook event {event!r} has no Claude Code mapping; not ported"
+            if note not in result.notes:
+                result.notes.append(note)
             continue
         groups = []
         for entry in entries:
@@ -646,7 +654,7 @@ def sync_repo(root: Path, check: bool, cfg: Config) -> SyncResult:
                 existing = json.loads(read_text(settings))
             except json.JSONDecodeError:
                 existing = None
-        hooks_json = build_hooks_settings(root, cfg, existing)
+        hooks_json = build_hooks_settings(root, cfg, existing, result)
         if hooks_json:
             write_or_check(settings, hooks_json, check, result, root)
 
