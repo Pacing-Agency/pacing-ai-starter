@@ -7,8 +7,17 @@
 root=$(git rev-parse --show-toplevel) || exit 0
 cd "$root" || exit 0
 
-# Credential-shaped patterns (extended regex). Add your own at the end.
-PATTERNS='sk-[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|AKIA[0-9A-Z]{16}|xox[abprs]-[A-Za-z0-9-]{10,}|AIza[0-9A-Za-z_-]{35}|-----BEGIN [A-Z ]*PRIVATE KEY-----|"refresh_token"[[:space:]]*:[[:space:]]*"[^"]{10,}|(api[_-]?key|secret|token|password)[A-Za-z0-9_]*[[:space:]]*[:=][[:space:]]*["'"'"'][A-Za-z0-9_./+=-]{20,}["'"'"']'
+# Credential-shaped patterns (extended regex, case-sensitive). Add your own at the end.
+PATTERNS='sk-[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|AKIA[0-9A-Z]{16}|xox[abprs]-[A-Za-z0-9-]{10,}|AIza[0-9A-Za-z_-]{35}|-----BEGIN [A-Z ]*PRIVATE KEY-----|"refresh_token"[[:space:]]*:[[:space:]]*"[^"]{10,}'
+
+# Assignments, matched case-insensitively: API_KEY="...", api_key=..., export SECRET=...,
+# "password": "...". The value must be 20 or more characters, quoted or not, and end at a
+# quote, space, comma, semicolon or end of line. The length floor keeps short examples such
+# as API_KEY=your-key-here and an empty API_KEY= from matching.
+ASSIGN='(api[_-]?key|secret|token|password)[A-Za-z0-9_]*["'"'"']?[[:space:]]*[:=][[:space:]]*["'"'"']?[A-Za-z0-9_./+=-]{20,}(["'"'"'[:space:],;]|$)'
+
+# Values that are obviously placeholders, skipped even when long.
+PLACEHOLDER='[:=][[:space:]]*["'"'"']?(your|example|changeme|change-me|placeholder|replace|xxx|todo|<)'
 
 # Files that should never be committed at all.
 BLOCKED_NAMES='(^|/)\.env($|\.)|\.keys\.json$|(^|/)credentials\.json$|(^|/)client_secret.*\.json$|\.pem$|\.p12$'
@@ -23,9 +32,13 @@ if [ -n "$names" ]; then
 fi
 
 # Only look at added lines.
-hits=$(git diff --cached -U0 --diff-filter=AM --no-color |
-  awk '/^\+\+\+ b\//{f=substr($0,7)} /^\+[^+]/{print f "\t" substr($0,2)}' |
-  grep -E "$(printf '\t').*($PATTERNS)" | cut -f1 | sort | uniq -c)
+added=$(git diff --cached -U0 --diff-filter=AM --no-color |
+  awk '/^\+\+\+ b\//{f=substr($0,7)} /^\+[^+]/{print f "\t" substr($0,2)}')
+tab=$(printf '\t')
+hits=$( {
+  printf '%s\n' "$added" | grep -E "$tab.*($PATTERNS)"
+  printf '%s\n' "$added" | grep -Ei "$tab.*$ASSIGN" | grep -Eiv "$tab.*$PLACEHOLDER"
+} | cut -f1 | sort | uniq -c)
 if [ -n "$hits" ]; then
   echo "secret guard: credential-shaped text in staged files (values not shown):" >&2
   echo "$hits" | sed 's/^/  /' >&2
