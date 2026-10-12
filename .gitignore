@@ -5,3 +5,4 @@ __pycache__/
 *.keys.json
 .DS_Store
 .venv/
+.claude/
