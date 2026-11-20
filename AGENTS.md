@@ -32,7 +32,7 @@ None. Users copy files out of this repo. There is no package to publish.
 
 ## Gotchas
 
-- `parity/cursor_claude_parity.py` is a copy of the standalone `cursor-claude-parity` repo. Change the generator there first, then copy it here.
+- `parity/cursor_claude_parity.py` is a copy of the standalone `cursor-claude-parity` generator (README).
 - The secret guard prints file names, never values. Never put a real key in a test: build test strings at run time.
 - Keep the scripts standard library only, and add a test for any behaviour change. British English, no em dashes.
 
