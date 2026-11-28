@@ -7,6 +7,8 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-24.04  # Python 3.9 is not built for ubuntu-latest (26.04); 3.9 is our floor
+    # Longest successful run 0.3 min (3 runs only, so 30 as a default), measured 28 Nov 2026.
+    timeout-minutes: 30
     strategy:
       matrix:
         python-version: ["3.9", "3.13"]
